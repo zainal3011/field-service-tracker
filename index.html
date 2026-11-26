@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FST - Field Service Tracker</title>
+
+<style>
+:root {
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --border:#e2e8f0;
+}
+
+body.dark {
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --primary:#3b82f6;
+  --border:#334155;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:.2s;
+}
+
+header {
+  background:var(--card);
+  padding:20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo {
+  font-size:20px;
+  font-weight:bold;
+  color:var(--primary);
+}
+
+header button {
+  background:var(--bg);
+  border:1px solid var(--border);
+  padding:10px;
+  border-radius:10px;
+  color:var(--text);
+}
+
+.container {
+  padding:18px;
+  max-width:700px;
+  margin:auto;
+}
+
+.welcome {
+  margin-bottom:22px;
+}
+
+.welcome h2 {
+  margin-bottom:5px;
+}
+
+.welcome p {
+  color:var(--muted);
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.card {
+  background:var(--card);
+  padding:17px;
+  border-radius:14px;
+  border:1px solid var(--border);
+}
+
+.card small {
+  color:var(--muted);
+}
+
+.number {
+  font-size:28px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.blue {color:#3b82f6;}
+.orange {color:#f59e0b;}
+.red {color:#ef4444;}
+.green {color:#22c55e;}
+
+.section {
+  margin-top:25px;
+}
+
+.section-title {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.primary {
+  background:var(--primary);
+  color:white;
+  border:0;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.job {
+  background:var(--card);
+  padding:15px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-top:12px;
+}
+
+.job h3 {
+  margin:0 0 8px;
+}
+
+.job p {
+  color:var(--muted);
+  font-size:13px;
+  margin:5px 0;
+}
+
+.badge {
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:11px;
+  background:var(--bg);
+  margin-top:8px;
+}
+
+form {
+  background:var(--card);
+  padding:18px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  margin-top:15px;
+}
+
+input,select {
+  width:100%;
+  padding:12px;
+  margin:7px 0 14px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+label {
+  font-size:13px;
+  font-weight:bold;
+}
+
+.hidden {
+  display:none;
+}
+
+nav {
+  position:sticky;
+  bottom:0;
+  background:var(--card);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-around;
+  padding:13px 5px;
+}
+
+nav button {
+  border:0;
+  background:none;
+  color:var(--muted);
+  font-size:12px;
+}
+
+footer {
+  text-align:center;
+  padding:20px;
+  color:var(--muted);
+  font-size:11px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">FST | FIELD SERVICE</div>
+  <button onclick="toggleTheme()">🌙 / ☀️</button>
+</header>
+
+<main class="container">
+
+<div class="welcome">
+  <h2>Technician Dashboard</h2>
+  <p>Selamat bekerja! Berikut aktivitas teknisi lu.</p>
+  <small id="today"></small>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <small>Today's Visit</small>
+    <div class="number blue" id="total">0</div>
+  </div>
+
+  <div class="card">
+    <small>Emergency</small>
+    <div class="number red" id="emergency">0</div>
+  </div>
+
+  <div class="card">
+    <small>Pending Jobs</small>
+    <div class="number orange" id="pending">0</div>
+  </div>
+
+  <div class="card">
+    <small>Completed</small>
+    <div class="number green" id="completed">0</div>
+  </div>
+
+</div>
+
+<div class="section">
+
+  <div class="section-title">
+    <h3>Schedule & Work Order</h3>
+    <button class="primary" onclick="showForm()">+ Add Visit</button>
+  </div>
+
+  <form id="visitForm" class="hidden">
+
+    <label>Nama Customer / Outlet</label>
+    <input id="customer" required placeholder="Nama hotel atau outlet">
+
+    <label>Jenis Mesin</label>
+    <select id="machine">
+      <option>Dishwasher Doortype</option>
+      <option>Dishwasher Conveyor</option>
+      <option>Undercounter</option>
+      <option>Chemical Dispenser</option>
+      <option>Other</option>
+    </select>
+
+    <label>Jenis Pekerjaan</label>
+    <select id="type">
+      <option>Monthly Service</option>
+      <option>By Request</option>
+      <option>Emergency</option>
+      <option>Installation</option>
+      <option>Troubleshooting</option>
+    </select>
+
+    <label>Tanggal Visit</label>
+    <input type="date" id="date" required>
+
+    <label>Status Pekerjaan</label>
+    <select id="status">
+      <option>Scheduled</option>
+      <option>On Progress</option>
+      <option>Pending</option>
+      <option>Completed</option>
+    </select>
+
+    <label>Catatan Pekerjaan</label>
+    <input id="notes" placeholder="Keluhan atau catatan teknisi">
+
+    <button class="primary" type="submit">Save Visit</button>
+    <button type="button" onclick="showForm()">Cancel</button>
+
+  </form>
+
+  <div id="jobList"></div>
+
+</div>
+
+</main>
+
+<nav>
+  <button onclick="window.scrollTo(0,0)">🏠<br>Dashboard</button>
+  <button onclick="showForm()">📅<br>Schedule</button>
+  <button onclick="showForm()">🔧<br>Work Order</button>
+  <button onclick="toggleTheme()">⚙️<br>Theme</button>
+</nav>
+
+<footer>
+  FIELD SERVICE TRACKER v1.0<br>
+  Technician Management System
+</footer>
+
+<script>
+
+let jobs = JSON.parse(localStorage.getItem("fst_jobs") || "[]");
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "fst_theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+}
+
+if(localStorage.getItem("fst_theme")==="dark") {
+  document.body.classList.add("dark");
+}
+
+document.getElementById("today").textContent =
+  new Date().toLocaleDateString("id-ID", {
+    weekday:"long",
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+  });
+
+function showForm() {
+  document.getElementById("visitForm").classList.toggle("hidden");
+  document.getElementById("visitForm").scrollIntoView({
+    behavior:"smooth"
+  });
+}
+
+document.getElementById("visitForm").addEventListener("submit",function(e) {
+  e.preventDefault();
+
+  const job = {
+    id:Date.now(),
+    customer:document.getElementById("customer").value,
+    machine:document.getElementById("machine").value,
+    type:document.getElementById("type").value,
+    date:document.getElementById("date").value,
+    status:document.getElementById("status").value,
+    notes:document.getElementById("notes").value
+  };
+
+  jobs.push(job);
+
+  localStorage.setItem("fst_jobs",JSON.stringify(jobs));
+
+  this.reset();
+  this.classList.add("hidden");
+
+  render();
+});
+
+function render() {
+
+  const today = new Date().toISOString().slice(0,10);
+
+  document.getElementById("total").textContent =
+    jobs.filter(j=>j.date===today).length;
+
+  document.getElementById("emergency").textContent =
+    jobs.filter(j=>j.type==="Emergency" && j.status!=="Completed").length;
+
+  document.getElementById("pending").textContent =
+    jobs.filter(j=>j.status==="Pending").length;
+
+  document.getElementById("completed").textContent =
+    jobs.filter(j=>j.status==="Completed").length;
+
+  const list = document.getElementById("jobList");
+
+  if(jobs.length===0) {
+    list.innerHTML="<p style='color:var(--muted)'>Belum ada jadwal pekerjaan.</p>";
+    return;
+  }
+
+  list.innerHTML = [...jobs]
+    .sort((a,b)=>a.date.localeCompare(b.date))
+    .map(j=>`
+      <div class="job">
+        <h3>${escapeHTML(j.customer)}</h3>
+        <p>📅 ${escapeHTML(j.date)}</p>
+        <p>🔧 ${escapeHTML(j.machine)}</p>
+        <p>📋 ${escapeHTML(j.type)}</p>
+        <p>📝 ${escapeHTML(j.notes || "-")}</p>
+        <span class="badge">${escapeHTML(j.status)}</span>
+      </div>
+    `).join("");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+render();
+
+</script>
+
+</body>
+  </html>
